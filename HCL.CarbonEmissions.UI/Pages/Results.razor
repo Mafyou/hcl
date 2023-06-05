@@ -1,0 +1,99 @@
+﻿@page "/results"
+@using HCL.CarbonEmissions.Models;
+@using Microsoft.Extensions.Caching.Memory;
+@using Blazorise.Charts
+
+@inject IMemoryCache cache;
+@inject NavigationManager Navigation
+
+<PageTitle>Resultats</PageTitle>
+
+<h1>Réduction de l’empreinte carbone !</h1>
+
+<LineChart @ref="lineChart" TItem="double" />
+
+<a href="/plans">Back</a>
+
+@code {
+    private UserProfil up;
+    private List<PlansYear> lpy = new()
+    {
+        new PlansYear { Id = 1, Year = 2023, PlansApplied = new ()
+        {
+            new PlansTemplate { Id = 1, Name = "Achat Thermostat", ReductionWH = 280, Selected = true },
+            new PlansTemplate { Id = 2, Name = "Achat LED", ReductionWH = 100, Selected = false },
+            new PlansTemplate { Id = 3, Name = "Gaget 5 étoiles", ReductionWH = 300, Selected = false },
+            new PlansTemplate { Id = 4, Name = "Termostat moins 2°", ReductionWH = 260, Selected = false },
+            new PlansTemplate { Id = 5, Name = "Solaire", ReductionWH = 500, Selected = false },
+            new PlansTemplate { Id = 6, Name = "Standby", ReductionWH = 150, Selected = false }
+        }},
+        new PlansYear { Id = 1, Year = 2024, PlansApplied = new ()
+        {
+            new PlansTemplate { Id = 1, Name = "Achat Thermostat", ReductionWH = 280 },
+            new PlansTemplate { Id = 2, Name = "Achat LED", ReductionWH = 100, Selected = true },
+            new PlansTemplate { Id = 3, Name = "Gaget 5 étoiles", ReductionWH = 300, Selected = false },
+            new PlansTemplate { Id = 4, Name = "Termostat moins 2°", ReductionWH = 260, Selected = false },
+            new PlansTemplate { Id = 5, Name = "Solaire", ReductionWH = 500, Selected = false },
+            new PlansTemplate { Id = 6, Name = "Standby", ReductionWH = 150, Selected = false }
+        }},
+        new PlansYear { Id = 1, Year = 2025, PlansApplied = new ()
+        {
+            new PlansTemplate { Id = 1, Name = "Achat Thermostat", ReductionWH = 280 },
+            new PlansTemplate { Id = 2, Name = "Achat LED", ReductionWH = 100,},
+            new PlansTemplate { Id = 3, Name = "Gaget 5 étoiles", ReductionWH = 300, Selected = true },
+            new PlansTemplate { Id = 4, Name = "Termostat moins 2°", ReductionWH = 260, Selected = false },
+            new PlansTemplate { Id = 5, Name = "Solaire", ReductionWH = 500, Selected = false },
+            new PlansTemplate { Id = 6, Name = "Standby", ReductionWH = 150, Selected = true }
+        }}
+    };
+    private LineChart<double> lineChart;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await HandleRedraw();
+        }
+    }
+    async Task HandleRedraw()
+    {
+        await lineChart.Clear();
+        var years = lpy.Select(x => x.Year).ToList() as IReadOnlyCollection<string>;
+        var extractedResults = GetLineChartDataset();
+
+        await lineChart.AddLabelsDatasetsAndUpdate(years, extractedResults);
+    }
+    LineChartDataset<double> GetLineChartDataset()
+    {
+        return new LineChartDataset<double>
+            {
+                Label = "Votre consommation",
+                Data = GenerateData(),
+                BackgroundColor = backgroundColors,
+                BorderColor = borderColors,
+                Fill = true,
+                PointRadius = 3,
+                CubicInterpolationMode = "monotone",
+            };
+    }
+    List<string> backgroundColors = new { ChartColor.FromRgba(255, 99, 132, 0.2f), ChartColor.FromRgba(54, 162, 235, 0.2f), ChartColor.FromRgba(255, 206, 86, 0.2f), ChartColor.FromRgba(75, 192, 192, 0.2f), ChartColor.FromRgba(153, 102, 255, 0.2f), ChartColor.FromRgba(255, 159, 64, 0.2f) };
+    List<string> borderColors = new { ChartColor.FromRgba(255, 99, 132, 1f), ChartColor.FromRgba(54, 162, 235, 1f), ChartColor.FromRgba(255, 206, 86, 1f), ChartColor.FromRgba(75, 192, 192, 1f), ChartColor.FromRgba(153, 102, 255, 1f), ChartColor.FromRgba(255, 159, 64, 1f) };
+
+    private List<double> GenerateData()
+    {
+        var toto = new List<double>();
+        foreach (var item in lpy)
+        {
+            double total = up.Consummation - item.PlansApplied.Where(x => x.Selected).Sum(x => x.ReductionWH);
+            toto.Add(total);
+        }
+        return toto;
+    }
+    protected override void OnInitialized()
+    {
+        up = cache.Get("userProfil") as UserProfil;
+        // lpy = cache.Get("result") as List<PlansYear>;
+
+        var t = 2;
+    }
+}

@@ -1,0 +1,112 @@
+﻿@page "/plans"
+@using HCL.CarbonEmissions.Models;
+@using System.Runtime.Caching;
+@using System.Text.Json;
+@using Microsoft.Extensions.Caching.Memory;
+@inject IMemoryCache _cache;
+@inject NavigationManager Navigation
+
+<PageTitle>Plans</PageTitle>
+
+<h1>Plans</h1>
+
+<EditForm Model="@model" OnSubmit="@HandleSubmit">
+    <label>Choisir l'année: </label>
+    <InputSelect ValueExpression="@(()=> selectedYear)"
+                 Value="@selectedYear"
+                 ValueChanged="@((int value) => OnValueChanged(value))">>
+        @foreach (var data in Enumerable.Range(2023, 2030))
+        {
+            <option value="@data">@data</option>
+        }
+    </InputSelect><br />
+    <InputCheckbox @bind-Value="isPlan1" onclick="@cbState(1)" />Achat Termostat <br />
+    <InputCheckbox @bind-Value="isPlan2" onclick="@cbState(2)" />Achat LED <br />
+    <InputCheckbox @bind-Value="isPlan3" onclick="@cbState(3)" />Gaget 5 étoiles <br />
+    <InputCheckbox @bind-Value="isPlan4" onclick="@cbState(4)" />Termostat moins 2° <br />
+    <InputCheckbox @bind-Value="isPlan5" onclick="@cbState(5)" />Solaire <br />
+    <InputCheckbox @bind-Value="isPlan6" onclick="@cbState(6)" />Standby <br />
+
+    <button class="btn btn-primary">Valider</button>
+</EditForm>
+
+@code {
+    private List<PlansTemplate> plans = new();
+    private UserProfil userProfil = new() { Country = "FR" };
+    private List<PlansYear> model = new();
+    private int selectedYear = 2023;
+
+    private bool isPlan1 = false;
+    private bool isPlan2 = false;
+    private bool isPlan3 = false;
+    private bool isPlan4 = false;
+    private bool isPlan5 = false;
+    private bool isPlan6 = false;
+    protected override void OnInitialized()
+    {
+        userProfil = _cache.Get("userProfil") as UserProfil;
+        initCacheValues();
+        plans = _cache.Get(2023) as List<PlansTemplate>;
+        var yearPlanRoot = _cache.Get(2023);
+        var y = 2;
+    }
+    private void initCacheValues()
+    {
+        foreach (int id in Enumerable.Range(1, 8))
+        {
+            var py = new PlansYear { Id = id, Year = 2022 + id };
+            _cache.Set(py.Year, py.PlansApplied);
+        }
+    }
+    private Task cbState(int index)
+    {
+        var plansApplied = _cache.Get(selectedYear) as List<PlansTemplate>;
+        if (plansApplied is null) return Task.CompletedTask;
+        var plan = plansApplied.FirstOrDefault(x => x.Id == index);
+        if (plan is null) return Task.CompletedTask;
+
+        if (plan.Id == 1) isPlan1 = plan.Selected;
+        else if (plan.Id == 2) isPlan2 = plan.Selected;
+        else if (plan.Id == 3) isPlan3 = plan.Selected;
+        else if (plan.Id == 4) isPlan4 =  plan.Selected;
+        else if (plan.Id == 5) isPlan5 = plan.Selected;
+        else if (plan.Id == 6) isPlan6 = plan.Selected;
+
+        StateHasChanged();
+
+        _cache.Set(selectedYear, plan);
+
+        return Task.CompletedTask;
+    }
+    private Task OnValueChanged(int i)
+    {
+        selectedYear = i;
+        var plansApplied = _cache.Get(selectedYear) as List<PlansTemplate>;
+        if (plansApplied is null) return Task.CompletedTask;
+
+        foreach (var plan in plansApplied)
+        {
+            if (plan.Id == 1) isPlan1 = plan.Selected;
+            else if (plan.Id == 2) isPlan2 = plan.Selected;
+            else if (plan.Id == 3) isPlan3 = plan.Selected;
+            else if (plan.Id == 4) isPlan4 = plan.Selected;
+            else if (plan.Id == 5) isPlan5 = plan.Selected;
+            else if (plan.Id == 6) isPlan6 = plan.Selected;
+        }
+        StateHasChanged();
+
+        return Task.CompletedTask;
+    }
+    private void HandleSubmit()
+    {
+        foreach (var date in Enumerable.Range(2022, 2030))
+        {
+            var c = _cache.Get(date) as PlansYear;
+            if (c is null) continue;
+            model.Add(c);
+        }
+        _cache.Set("result", model);
+
+        Navigation.NavigateTo("/results");
+    }
+}

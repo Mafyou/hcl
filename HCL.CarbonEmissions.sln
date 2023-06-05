@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.33711.374
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HCL.CarbonEmissions.UI", "HCL.CarbonEmissions.UI\HCL.CarbonEmissions.UI.csproj", "{4C357EE5-1958-402C-89EF-80313D7219CD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HCL.CarbonEmissions.Models", "HCL.CarbonEmissions.Models\HCL.CarbonEmissions.Models.csproj", "{1C358BB1-ADC9-4067-875D-EFD10A3A80C9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4C357EE5-1958-402C-89EF-80313D7219CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C357EE5-1958-402C-89EF-80313D7219CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C357EE5-1958-402C-89EF-80313D7219CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C357EE5-1958-402C-89EF-80313D7219CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C358BB1-ADC9-4067-875D-EFD10A3A80C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C358BB1-ADC9-4067-875D-EFD10A3A80C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C358BB1-ADC9-4067-875D-EFD10A3A80C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C358BB1-ADC9-4067-875D-EFD10A3A80C9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {740DE295-EA45-4E52-B333-9C52328B6FD7}
+	EndGlobalSection
+EndGlobal

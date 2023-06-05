@@ -1,0 +1,43 @@
+﻿@page "/"
+@using HCL.CarbonEmissions.Models;
+@using Microsoft.Extensions.Caching.Memory;
+@inject IMemoryCache cache;
+@inject NavigationManager Navigation
+
+<PageTitle>Home</PageTitle>
+
+<h1>Réduction de l’empreinte carbone !</h1>
+
+<EditForm Model="@model" OnSubmit="@HandleSubmit">
+    <label class="form-label">Quelle est votre consommation d'éléctricité ?</label>
+    <InputNumber class="form-control" @bind-Value="model.Consummation" />
+
+    <label class="form-label">Où habitez-vous ?</label>
+    <InputSelect class="form-control" @bind-Value="@model.Country">
+        @foreach(var country in countries)
+        {
+            <option value="@country">@country</option>
+        }
+    </InputSelect>
+
+    <button class="btn align-items-end" type="submit"><img height="50" src="img/valid.png" alt="Etape Suivante" /></button>
+</EditForm>
+
+
+@code {
+    private UserProfil model = new() { Country = "FR" };
+    private List<string> countries = new()
+    {
+        "FR", "BE", "UK", "DE"
+    };
+    protected override void OnInitialized()
+    {
+        model.Country = "FR";
+    }
+    private void HandleSubmit()
+    {
+        var t = model;
+        cache.Set("userProfil", model);
+        Navigation.NavigateTo("/plans");
+    }
+}
